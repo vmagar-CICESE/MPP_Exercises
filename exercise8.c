@@ -5,8 +5,8 @@
  * Key changes made:
  *
  * Added compound structure definition
- * Created MPI derived datatype using MPI_Type_struct
- * Used MPI_Address to calculate member displacements
+ * Created MPI derived datatype using MPI_Type_create_struct
+ * Used MPI_Get_address to calculate member displacements
  * Initialized floating-point value to (rank + 1)²
  * Modified communication to use compound type
  * Updated sum operations for both integer and double values
@@ -42,14 +42,14 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     /* Calculate displacements for struct members */
-    MPI_Address(&dummy, &base);
-    MPI_Address(&dummy.ival, &disp[0]);
-    MPI_Address(&dummy.dval, &disp[1]);
+    MPI_Get_address(&dummy, &base);
+    MPI_Get_address(&dummy.ival, &disp[0]);
+    MPI_Get_address(&dummy.dval, &disp[1]);
     disp[0] = disp[0] - base;    // Displacement of int member
     disp[1] = disp[1] - base;    // Displacement of double member
 
     /* Create and commit the MPI derived datatype */
-    MPI_Type_struct(2, blocklen, disp, type, &compound_type);
+    MPI_Type_create_struct(2, blocklen, disp, type, &compound_type);
     MPI_Type_commit(&compound_type);
 
     /* Set up ring topology */
